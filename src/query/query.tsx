@@ -2,7 +2,20 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { bookApi } from "../api/api";
 import type { Book } from "../api/types/api.types";
 
-// 查詢金鑰工廠函式 - 遵循 tkdodo 的建議統一管理 query keys
+/**
+ * 查詢金鑰工廠函式 - 遵循 tkdodo 的最佳實踐統一管理 query keys
+ *
+ * 結構設計原則：
+ * 1. 從最通用到最具體的層級結構（['books'] -> ['books', 'list'] -> ['books', 'list', {filters}]）
+ * 2. 每個層級都可獨立存取，支援靈活的快取操作（invalidation、prefetch 等）
+ * 3. 避免手動宣告 key 時的錯誤，讓未來變更更容易維護
+ * 4. 支援 Query Filters 的模糊匹配，方便批次操作快取
+ *
+ * 使用範例：
+ * - bookKeys.all 可移除所有書籍相關快取
+ * - bookKeys.lists() 可失效所有列表查詢
+ * - bookKeys.detail(id) 可針對特定書籍操作
+ */
 export const bookKeys = {
 	all: ["books"] as const,
 	lists: () => [...bookKeys.all, "list"] as const,
