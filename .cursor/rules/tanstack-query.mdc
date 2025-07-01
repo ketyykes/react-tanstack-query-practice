@@ -1,0 +1,102 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# TanStack Query 最佳實踐指南
+
+## Query Keys 管理策略
+
+此專案遵循 **tkdodo** 的最佳實踐，在 **[src/query/query.tsx](mdc:src/query/query.tsx)** 中使用 Query Keys 工廠函式：
+
+### Query Keys 結構設計原則
+
+```typescript
+export const bookKeys = {
+  all: ["books"] as const,
+  lists: () => [...bookKeys.all, "list"] as const,
+  list: (filters: string) => [...bookKeys.lists(), { filters }] as const,
+  details: () => [...bookKeys.all, "detail"] as const,
+  detail: (id: number) => [...bookKeys.details(), id] as const,
+}
+```
+
+### 階層式 Query Keys 優勢
+
+1. **從通用到具體**：`["books"]` → `["books", "list"]` → `["books", "list", {filters}]`
+2. **靈活的快取操作**：可針對不同層級進行 invalidation
+3. **避免手動錯誤**：統一管理所有 query keys
+4. **支援模糊匹配**：便於批次快取操作
+
+## Hooks 命名慣例
+
+### Query Hooks
+- 使用 `use[Entity]Query` 格式：`useBooksQuery`, `useBookQuery`
+- 接受必要參數和可選的 `enabled` 參數
+- 設定合理的 `staleTime`（建議 5 分鐘）
+
+### Mutation Hooks
+- 使用 `use[Action][Entity]Mutation` 格式：
+  - `useCreateBookMutation`
+  - `useUpdateBookMutation`
+  - `useDeleteBookMutation`
+
+## 快取更新策略
+
+### Optimistic Updates 未實現時的策略
+```typescript
+onSuccess: () => {
+  // 使相關查詢失效，讓 TanStack Query 重新取得資料
+  queryClient.invalidateQueries({ queryKey: bookKeys.lists() })
+  queryClient.invalidateQueries({ queryKey: bookKeys.detail(id) })
+}
+```
+
+### 快取移除策略
+```typescript
+onSuccess: (_, id) => {
+  // 刪除操作時移除特定快取
+  queryClient.removeQueries({ queryKey: bookKeys.detail(id) })
+  queryClient.invalidateQueries({ queryKey: bookKeys.lists() })
+}
+```
+
+## 預填充（Prefetching）
+
+使用 `usePrefetchBook` hook 在使用者可能需要時預先載入資料：
+
+```typescript
+export const usePrefetchBook = () => {
+  const queryClient = useQueryClient()
+  return (id: number) => {
+    queryClient.prefetchQuery({
+      queryKey: bookKeys.detail(id),
+      queryFn: () => bookApi.getById(id),
+      staleTime: 5 * 60 * 1000,
+    })
+  }
+}
+```
+
+## 錯誤處理最佳實踐
+
+1. **Mutation 層級錯誤處理**：在 `onError` 回呼中記錄錯誤
+2. **UI 層級錯誤處理**：使用 Query 的 `error` 狀態顯示錯誤訊息
+3. **全域錯誤邊界**：考慮實作 Error Boundary 元件
+
+## 載入狀態管理
+
+利用 TanStack Query 提供的狀態：
+- `isLoading`：首次載入
+- `isFetching`：任何取得資料的時機
+- `isError`：錯誤狀態
+- `isSuccess`：成功狀態
+
+## 新增 Query/Mutation 時的檢查清單
+
+1. ✅ 在 `bookKeys` 中新增對應的 key 工廠函式
+2. ✅ 實作對應的 API 函式（在 **[src/api/api.ts](mdc:src/api/api.ts)** 中）
+3. ✅ 設定合理的 `staleTime`
+4. ✅ 實作適當的快取更新策略
+5. ✅ 新增錯誤處理邏輯
+6. ✅ 考慮是否需要預填充功能

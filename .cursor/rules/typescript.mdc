@@ -1,0 +1,218 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# TypeScript 最佳實踐指南
+
+## 型別定義組織
+
+### 型別檔案結構
+- **[src/api/types/api.types.ts](mdc:src/api/types/api.types.ts)** - API 相關型別
+- 每個功能模組可建立對應的 `.types.ts` 檔案
+
+### 命名慣例
+1. **介面**：使用 PascalCase（如：`Book`, `User`）
+2. **型別別名**：使用 PascalCase（如：`BookStatus`）
+3. **列舉**：使用 PascalCase（如：`BookCategory`）
+4. **泛型參數**：使用單一大寫字母（如：`T`, `K`, `V`）
+
+## API 型別模式
+
+### 實體型別定義
+```typescript
+export interface Book {
+  id: number
+  title: string
+  author: string
+  isbn: string
+  publishedYear: number
+  category: BookCategory
+  status: BookStatus
+}
+
+export type BookCategory = 'fiction' | 'non-fiction' | 'science' | 'history'
+export type BookStatus = 'available' | 'borrowed' | 'reserved'
+```
+
+### 操作型別衍生
+```typescript
+// 建立時排除 id
+export type CreateBookRequest = Omit<Book, 'id'>
+
+// 更新時所有欄位可選
+export type UpdateBookRequest = Partial<Book>
+
+// 回應包裝型別
+export interface ApiResponse<T> {
+  data: T
+  message: string
+  status: 'success' | 'error'
+}
+```
+
+## React 元件型別模式
+
+### Props 介面定義
+```typescript
+// 基礎 Props
+interface BookItemProps {
+  book: Book
+  isSelected?: boolean
+  onSelect?: (book: Book) => void
+}
+
+// 使用泛型的 Props
+interface ListProps<T> {
+  items: T[]
+  renderItem: (item: T) => React.ReactNode
+  onItemSelect?: (item: T) => void
+}
+
+// 子元件 Props
+interface BookFormProps {
+  initialValues?: Partial<Book>
+  onSubmit: (values: CreateBookRequest) => void
+  onCancel: () => void
+}
+```
+
+### 事件處理型別
+```typescript
+// 表單事件
+type FormSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => void
+
+// 按鈕點擊事件
+type ButtonClickHandler = (event: React.MouseEvent<HTMLButtonElement>) => void
+
+// 輸入變更事件
+type InputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => void
+```
+
+## TanStack Query 型別整合
+
+### Query Hook 型別標註
+```typescript
+// Query 回傳型別明確標註
+export const useBooksQuery = (queryString?: string) => {
+  return useQuery<Book[], Error>({  // 明確標註 data 和 error 型別
+    queryKey: bookKeys.list(queryString || ""),
+    queryFn: () => bookApi.getAll(queryString),
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+// Mutation 型別標註
+export const useCreateBookMutation = () => {
+  return useMutation<
+    Book,                    // 回傳型別
+    Error,                   // 錯誤型別
+    CreateBookRequest        // 變數型別
+  >({
+    mutationFn: (bookData) => bookApi.create(bookData),
+    // ...
+  })
+}
+```
+
+### Query Key 型別安全
+```typescript
+// 使用 const assertions 確保型別推斷
+export const bookKeys = {
+  all: ["books"] as const,
+  lists: () => [...bookKeys.all, "list"] as const,
+  list: (filters: string) => [...bookKeys.lists(), { filters }] as const,
+  details: () => [...bookKeys.all, "detail"] as const,
+  detail: (id: number) => [...bookKeys.details(), id] as const,
+}
+```
+
+## 工具型別使用
+
+### 內建工具型別
+```typescript
+// 建立型別時排除特定屬性
+type PublicBook = Omit<Book, 'internalId' | 'createdAt'>
+
+// 選擇特定屬性
+type BookSummary = Pick<Book, 'id' | 'title' | 'author'>
+
+// 使所有屬性可選
+type PartialBook = Partial<Book>
+
+// 使所有屬性必要
+type RequiredBook = Required<Book>
+```
+
+### 自訂工具型別
+```typescript
+// API 回應包裝
+type ApiData<T> = {
+  data: T
+  success: boolean
+  message?: string
+}
+
+// 分頁資料
+type PaginatedData<T> = {
+  items: T[]
+  totalCount: number
+  pageSize: number
+  currentPage: number
+}
+```
+
+## 型別守衛和驗證
+
+### 型別守衛函式
+```typescript
+// 檢查是否為有效的 Book
+export function isValidBook(obj: unknown): obj is Book {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'id' in obj &&
+    'title' in obj &&
+    'author' in obj &&
+    typeof (obj as Book).id === 'number' &&
+    typeof (obj as Book).title === 'string'
+  )
+}
+
+// 檢查 API 錯誤
+export function isApiError(error: unknown): error is { message: string; status: number } {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    'status' in error
+  )
+}
+```
+
+## 設定檔案配置
+
+### 嚴格模式設定
+確保 **[tsconfig.json](mdc:tsconfig.json)** 啟用嚴格模式：
+
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true
+  }
+}
+```
+
+## TypeScript 最佳實踐檢查清單
+
+1. ✅ 為所有 API 回應定義明確型別
+2. ✅ 使用工具型別避免重複定義
+3. ✅ 為 React 元件 Props 定義介面
+4. ✅ 標註 TanStack Query hooks 的型別
+5. ✅ 使用 `const assertions` 確保型別推斷
+6. ✅ 實作型別守衛進行執行時檢查
+7. ✅ 避免使用 `any`，必要時使用 `unknown`
+8. ✅ 為複雜的事件處理定義型別別名

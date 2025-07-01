@@ -1,0 +1,113 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# API 層架構指南
+
+## Axios 設定模式
+
+**[src/api/api.ts](mdc:src/api/api.ts)** 採用模組化的 Axios 設定：
+
+### 服務實例設定
+```typescript
+const publicService = axios.create({
+  baseURL: `${baseUrl}`,
+})
+```
+
+### 回應攔截器模式
+實作統一的錯誤處理：
+```typescript
+publicService.interceptors.response.use(
+  (response) => response.data,  // 自動解包 data
+  (error) => {
+    // 統一錯誤處理邏輯
+    if (error.response?.status === 404) {
+      console.error("請求的資源不存在")
+    }
+    // ... 其他錯誤處理
+  }
+)
+```
+
+## 路由工廠函式模式
+
+### 動態路由建構
+使用工廠函式建立 RESTful API 路由：
+
+```typescript
+const bookQueryRouteCreator = (queryString?: string) => {
+  const routeUrl = `/books`
+  return queryString ? `${routeUrl}?${queryString}` : routeUrl
+}
+
+const bookDetailRouteCreator = (id: string | number) => `/books/${id}`
+```
+
+### 優勢
+1. **型別安全**：避免字串拼接錯誤
+2. **易於維護**：集中管理所有 API 路由
+3. **彈性查詢**：支援可選的查詢參數
+
+## API 函式組織模式
+
+### 實體為基礎的 API 分組
+```typescript
+export const bookApi = {
+  getAll: (queryString?: string): Promise<Book[]> => 
+    publicService.get(bookQueryRouteCreator(queryString)),
+  
+  getById: (id: number): Promise<Book> => 
+    publicService.get(bookDetailRouteCreator(id)),
+  
+  create: (bookData: Omit<Book, "id">): Promise<Book> => 
+    publicService.post(bookAddRouteCreator(), bookData),
+  
+  update: (id: number, bookData: Partial<Book>): Promise<Book> => 
+    publicService.put(bookUpdateRouteCreator(id), bookData),
+  
+  delete: (id: number): Promise<void> => 
+    publicService.delete(bookRemoveRouteCreator(id)),
+}
+```
+
+## TypeScript 型別管理
+
+### 型別定義位置
+- **[src/api/types/api.types.ts](mdc:src/api/types/api.types.ts)** - 所有 API 相關型別
+
+### 型別命名慣例
+1. **實體型別**：使用 PascalCase（如：`Book`）
+2. **請求/回應型別**：使用描述性名稱（如：`CreateBookRequest`）
+3. **API 回應包裝**：使用泛型模式（如：`ApiResponse<T>`）
+
+## 新增 API 端點檢查清單
+
+當新增新的 API 功能時：
+
+1. ✅ 在對應的型別檔案中定義 TypeScript 介面
+2. ✅ 建立路由工廠函式
+3. ✅ 在對應的 API 物件中新增方法
+4. ✅ 使用適當的 HTTP 方法（GET, POST, PUT, DELETE）
+5. ✅ 確保回傳型別正確標註
+6. ✅ 考慮是否需要額外的錯誤處理
+7. ✅ 在 **[src/query/query.tsx](mdc:src/query/query.tsx)** 中建立對應的 hooks
+
+## 錯誤處理策略
+
+### 階層式錯誤處理
+1. **Axios 攔截器**：處理 HTTP 層級錯誤
+2. **API 函式**：處理業務邏輯錯誤
+3. **Query hooks**：處理 UI 相關錯誤
+4. **元件層**：顯示錯誤訊息給使用者
+
+### 錯誤訊息國際化
+考慮使用繁體中文錯誤訊息，提升使用者體驗：
+```typescript
+if (error.response?.status === 404) {
+  console.error("請求的資源不存在")
+} else if (error.response?.status === 500) {
+  console.error("伺服器發生錯誤")
+}
+```

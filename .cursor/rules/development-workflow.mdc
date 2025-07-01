@@ -1,0 +1,193 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# 開發流程與最佳實踐
+
+## 開發環境設定
+
+### 啟動開發伺服器
+```bash
+# 安裝依賴
+pnpm install
+
+# 啟動開發模式
+pnpm dev
+
+# 啟動 JSON Server（另一個終端）
+npx json-server --watch db.json --port 3004
+```
+
+### 建置和預覽
+```bash
+# TypeScript 編譯檢查
+pnpm run build
+
+# 預覽建置結果
+pnpm preview
+
+# ESLint 檢查
+pnpm lint
+```
+
+## Git 工作流程
+
+### 分支命名慣例
+- `feature/book-management` - 新功能開發
+- `fix/query-error-handling` - 問題修復
+- `refactor/api-structure` - 程式碼重構
+- `docs/update-readme` - 文件更新
+
+### 提交訊息格式
+```
+type(scope): description
+
+types:
+- feat: 新功能
+- fix: 問題修復
+- refactor: 程式碼重構
+- docs: 文件更新
+- style: 樣式調整
+- test: 測試相關
+- chore: 維護性任務
+
+範例:
+feat(books): 新增書籍搜尋功能
+fix(api): 修復書籍更新 API 錯誤處理
+refactor(query): 重構 TanStack Query hooks 結構
+```
+
+## 開發最佳實踐
+
+### 程式碼品質檢查清單
+1. ✅ **TypeScript 型別**：確保所有變數和函式都有適當的型別標註
+2. ✅ **ESLint 規則**：遵循專案的 ESLint 設定
+3. ✅ **元件結構**：遵循標準元件內部結構
+4. ✅ **命名慣例**：使用一致的檔案和變數命名
+5. ✅ **錯誤處理**：適當處理 API 錯誤和載入狀態
+6. ✅ **效能考量**：避免不必要的重新渲染
+
+### 新功能開發流程
+
+#### 1. API 開發
+1. 在 **[src/api/types/api.types.ts](mdc:src/api/types/api.types.ts)** 定義型別
+2. 在 **[src/api/api.ts](mdc:src/api/api.ts)** 實作 API 函式
+3. 測試 API 函式是否正常運作
+
+#### 2. Query Hook 開發
+1. 在 **[src/query/query.tsx](mdc:src/query/query.tsx)** 新增 Query Keys
+2. 實作對應的 useQuery 或 useMutation hooks
+3. 設定適當的快取策略和錯誤處理
+
+#### 3. 元件開發
+1. 決定元件放置位置（頁面專用 vs 共用）
+2. 實作元件邏輯和 UI
+3. 整合 TanStack Query hooks
+4. 新增適當的載入和錯誤狀態處理
+
+#### 4. 樣式實作
+1. 使用 Tailwind CSS 實作響應式設計
+2. 確保符合設計一致性
+3. 測試不同裝置和螢幕尺寸
+
+## 偵錯和測試策略
+
+### TanStack Query DevTools
+利用開發者工具監控查詢狀態：
+```typescript
+// 在開發環境中啟用 DevTools
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
+function App() {
+  return (
+    <>
+      <YourApp />
+      {process.env.NODE_ENV === 'development' && (
+        <ReactQueryDevtools initialIsOpen={false} />
+      )}
+    </>
+  )
+}
+```
+
+### 常見問題偵錯
+
+#### 1. Query 不更新
+- 檢查 Query Key 是否正確
+- 確認 `invalidateQueries` 呼叫是否正確
+- 檢查 `staleTime` 設定
+
+#### 2. Mutation 錯誤
+- 檢查 API 函式實作
+- 確認後端服務是否正常運行
+- 檢查錯誤處理邏輯
+
+#### 3. 型別錯誤
+- 確保 API 回應格式符合型別定義
+- 檢查 TanStack Query hooks 的型別標註
+- 驗證元件 Props 型別
+
+### 效能監控
+
+#### Bundle 分析
+```bash
+# 分析建置檔案大小
+pnpm run build
+# 使用 Vite 的內建分析工具
+```
+
+#### React 效能
+- 使用 React DevTools Profiler
+- 避免不必要的重新渲染
+- 適當使用 `React.memo` 和 `useCallback`
+
+## 部署準備
+
+### 建置前檢查
+1. ✅ 所有 TypeScript 錯誤已修復
+2. ✅ ESLint 檢查通過
+3. ✅ 建置命令成功執行
+4. ✅ 預覽模式測試通過
+5. ✅ 確認環境變數設定正確
+
+### 環境設定
+```typescript
+// 環境變數設定範例
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3004'
+const IS_DEVELOPMENT = import.meta.env.DEV
+const IS_PRODUCTION = import.meta.env.PROD
+```
+
+## 程式碼審查指南
+
+### 審查重點
+1. **架構設計**：是否遵循專案架構模式
+2. **型別安全**：TypeScript 使用是否恰當
+3. **效能影響**：是否有效能問題
+4. **測試覆蓋**：重要邏輯是否經過測試
+5. **文件更新**：是否需要更新相關文件
+
+### 審查清單
+- [ ] API 函式實作正確
+- [ ] TanStack Query 使用符合最佳實踐
+- [ ] 元件結構清晰易懂
+- [ ] 錯誤處理完整
+- [ ] 樣式符合設計規範
+- [ ] 無明顯的效能問題
+- [ ] 程式碼可讀性良好
+
+## 持續改進
+
+### 技術債務管理
+定期檢視和重構：
+1. 過時的依賴更新
+2. 重複程式碼合併
+3. 效能瓶頸優化
+4. 程式碼結構改善
+
+### 學習資源
+- [TanStack Query 官方文件](mdc:https:/tanstack.com/query)
+- [tkdodo 的 Query 最佳實踐部落格](mdc:https:/tkdodo.eu/blog)
+- [React TypeScript 最佳實踐](mdc:https:/react-typescript-cheatsheet.netlify.app)
+- [Tailwind CSS 官方文件](mdc:https:/tailwindcss.com/docs)

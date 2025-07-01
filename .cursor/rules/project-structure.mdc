@@ -1,0 +1,54 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# React TanStack Query 專案結構指南
+
+## 專案架構概述
+
+此專案採用現代化的 React 架構，使用 TanStack Query 進行資料管理。主要目錄結構如下：
+
+### 核心檔案結構
+
+- **[src/main.tsx](mdc:src/main.tsx)** - 應用程式入口點，包含 QueryClient 初始化和 Provider 設定
+- **[src/App.tsx](mdc:src/App.tsx)** - 主要應用程式元件，包含路由器配置
+- **[src/router/index.tsx](mdc:src/router/index.tsx)** - React Router 路由設定檔案
+
+### 資料層組織
+
+- **[src/api/](mdc:src/api)** - API 層，包含所有後端通訊邏輯
+  - **[src/api/api.ts](mdc:src/api/api.ts)** - API 函式定義和 Axios 設定
+  - **[src/api/types/](mdc:src/api/types)** - API 相關的 TypeScript 型別定義
+- **[src/query/](mdc:src/query)** - TanStack Query hooks 和 Query Keys 管理
+  - **[src/query/query.tsx](mdc:src/query/query.tsx)** - 自訂 Query 和 Mutation hooks
+
+### UI 層組織
+
+- **[src/pages/](mdc:src/pages)** - 頁面層級元件，每個頁面有獨立資料夾
+  - **[src/pages/TanstackPage/](mdc:src/pages/TanstackPage)** - 主要功能頁面
+  - **[src/pages/TanstackPage/components/](mdc:src/pages/TanstackPage/components)** - 頁面專用元件
+- **[src/components/](mdc:src/components)** - 共用元件庫
+- **[src/layout/](mdc:src/layout)** - 版面配置元件
+  - **[src/layout/Layout.tsx](mdc:src/layout/Layout.tsx)** - 主要版面配置元件
+
+### 配置檔案
+
+- **[package.json](mdc:package.json)** - 專案依賴和腳本配置
+- **[vite.config.ts](mdc:vite.config.ts)** - Vite 建置工具配置
+- **[tsconfig.json](mdc:tsconfig.json)** - TypeScript 編譯器配置
+- **[db.json](mdc:db.json)** - JSON Server 資料庫檔案（開發用）
+
+## 目錄命名慣例
+
+1. **頁面目錄**：使用 PascalCase + "Page" 後綴（如：`TanstackPage/`）
+2. **元件目錄**：使用 PascalCase（如：`BookList/`）
+3. **功能目錄**：使用 kebab-case（如：`api/`, `query/`）
+4. **檔案命名**：React 元件使用 PascalCase.tsx，其他使用 camelCase
+
+## 新增功能時的最佳實踐
+
+1. **新頁面**：在 `src/pages/` 下建立新資料夾，包含主元件和專用 components 子資料夾
+2. **新 API**：在 `src/api/api.ts` 中新增函式，在 `src/api/types/` 中定義型別
+3. **新查詢**：在 `src/query/query.tsx` 中新增對應的 hooks
+4. **共用元件**：放置在 `src/components/` 中，可被多個頁面使用

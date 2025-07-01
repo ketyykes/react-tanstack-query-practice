@@ -1,0 +1,178 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# React 元件組織指南
+
+## 元件分層架構
+
+### 頁面層級元件
+位於 **[src/pages/](mdc:src/pages)** - 每個頁面獨立資料夾：
+
+```
+src/pages/
+├── TanstackPage/
+│   ├── TanstackPage.tsx          # 主頁面元件
+│   └── components/               # 頁面專用元件
+│       ├── BookDetailPanel.tsx
+│       ├── BookDetails.tsx
+│       ├── BookEditForm.tsx
+│       ├── BookItem.tsx
+│       ├── BookList.tsx
+│       ├── SearchFilter.tsx
+│       └── index.ts              # 統一匯出
+```
+
+### 共用元件
+位於 **[src/components/](mdc:src/components)** - 可跨頁面重複使用的元件
+
+### 版面配置元件
+位於 **[src/layout/](mdc:src/layout)** - 應用程式整體布局元件
+
+## 元件命名慣例
+
+### 檔案命名
+1. **元件檔案**：使用 PascalCase.tsx（如：`BookList.tsx`）
+2. **Index 檔案**：使用 `index.ts` 統一匯出
+3. **型別檔案**：使用 `.types.ts` 後綴
+
+### 元件名稱
+1. **領域特定元件**：使用領域前綴（如：`BookList`, `BookItem`）
+2. **通用元件**：使用功能性名稱（如：`Button`, `Modal`）
+3. **頁面元件**：使用 "Page" 後綴（如：`TanstackPage`）
+
+## 元件內部結構模式
+
+### 標準元件結構
+```typescript
+// 1. 匯入區域
+import { useState } from 'react'
+import { useBooksQuery } from '../../query/query'
+import type { Book } from '../../api/types/api.types'
+
+// 2. 型別定義
+interface BookListProps {
+  searchTerm?: string
+  onBookSelect?: (book: Book) => void
+}
+
+// 3. 元件實作
+export default function BookList({ searchTerm, onBookSelect }: BookListProps) {
+  // 4. Hooks（順序：狀態、查詢、副作用）
+  const [selectedId, setSelectedId] = useState<number | null>(null)
+  const { data: books, isLoading, error } = useBooksQuery(searchTerm)
+  
+  // 5. 事件處理函式
+  const handleBookClick = (book: Book) => {
+    setSelectedId(book.id)
+    onBookSelect?.(book)
+  }
+  
+  // 6. 早期回傳（載入中、錯誤狀態）
+  if (isLoading) return <div>載入中...</div>
+  if (error) return <div>發生錯誤：{error.message}</div>
+  
+  // 7. 主要 JSX 回傳
+  return (
+    <div className="space-y-4">
+      {books?.map((book) => (
+        <BookItem 
+          key={book.id} 
+          book={book} 
+          isSelected={selectedId === book.id}
+          onClick={() => handleBookClick(book)}
+        />
+      ))}
+    </div>
+  )
+}
+```
+
+## TanStack Query 整合模式
+
+### Query 資料取得
+```typescript
+// 在元件中使用 Query hooks
+const { data, isLoading, error, refetch } = useBooksQuery(searchTerm)
+
+// 條件式查詢
+const { data: bookDetail } = useBookQuery(selectedBookId, !!selectedBookId)
+```
+
+### Mutation 操作
+```typescript
+// 在元件中使用 Mutation hooks
+const createMutation = useCreateBookMutation()
+const updateMutation = useUpdateBookMutation()
+const deleteMutation = useDeleteBookMutation()
+
+const handleSubmit = async (formData: BookFormData) => {
+  try {
+    await createMutation.mutateAsync(formData)
+    // 成功後的處理
+  } catch (error) {
+    // 錯誤處理
+  }
+}
+```
+
+## Props 設計原則
+
+### 介面設計
+1. **必要 props**：不使用可選標記
+2. **可選 props**：使用 `?` 標記
+3. **回呼函式**：使用 `on` 前綴（如：`onBookSelect`）
+4. **布林值 props**：使用描述性名稱（如：`isSelected`）
+
+### 型別定義最佳實踐
+```typescript
+interface ComponentProps {
+  // 必要資料
+  book: Book
+  
+  // 可選資料
+  searchTerm?: string
+  
+  // 事件處理
+  onSelect?: (book: Book) => void
+  onEdit?: (id: number) => void
+  
+  // 狀態標記
+  isLoading?: boolean
+  isSelected?: boolean
+}
+```
+
+## 元件匯出模式
+
+### 統一匯出檔案
+在 **[src/pages/TanstackPage/components/index.ts](mdc:src/pages/TanstackPage/components/index.ts)** 中：
+
+```typescript
+export { default as BookDetailPanel } from './BookDetailPanel'
+export { default as BookDetails } from './BookDetails'
+export { default as BookEditForm } from './BookEditForm'
+export { default as BookItem } from './BookItem'
+export { default as BookList } from './BookList'
+export { default as SearchFilter } from './SearchFilter'
+```
+
+### 匯入使用
+```typescript
+// 統一從 index 匯入多個元件
+import { BookList, BookItem, SearchFilter } from './components'
+
+// 單一元件直接匯入
+import BookDetailPanel from './components/BookDetailPanel'
+```
+
+## 新增元件檢查清單
+
+1. ✅ 確定元件放置位置（頁面專用 vs 共用）
+2. ✅ 定義清楚的 TypeScript 介面
+3. ✅ 遵循標準元件結構
+4. ✅ 使用適當的 TanStack Query hooks
+5. ✅ 實作載入中和錯誤狀態
+6. ✅ 在 index.ts 中匯出（如果適用）
+7. ✅ 使用 Tailwind CSS 進行樣式設計
