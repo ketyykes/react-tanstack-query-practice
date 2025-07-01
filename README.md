@@ -98,17 +98,17 @@ src/
 
 ### 安裝依賴
 ```bash
-npm install
+pnpm install
 ```
 
 ### 啟動開發伺服器
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 ### 啟動 JSON Server（後端 API）
 ```bash
-npx json-server --watch db.json --port 3000
+pnpx json-server --watch db.json --port 3004
 ```
 
 ## 🎨 功能特色
@@ -142,7 +142,3 @@ npx json-server --watch db.json --port 3000
 - 本專案需要 JSON Server 提供後端 API
 - 確保 `db.json` 檔案包含適當的書籍資料
 - 開發時建議開啟 React Query DevTools
-
-## 🤝 貢獻
-
-歡迎提出 Issue 和 Pull Request 來改善這個範例專案！
