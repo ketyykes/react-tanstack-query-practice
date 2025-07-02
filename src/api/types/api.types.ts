@@ -18,5 +18,4 @@ export interface Book {
 	rating: number;
 	reviews: number;
 	isRecommended: boolean;
-	tags: string[];
 }

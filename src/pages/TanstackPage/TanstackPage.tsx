@@ -9,12 +9,21 @@ import {
 import type { Book } from "../../api/types/api.types";
 import { SearchFilter, BookList, BookDetailPanel } from "./components";
 
+// 通知類型
+type NotificationType = "success" | "error";
+interface Notification {
+	id: string;
+	type: NotificationType;
+	message: string;
+}
+
 const TanstackPage = () => {
 	// 本地狀態管理 - 遵循 tkdodo 的建議，保持 server state 和 client state 分離
 	const [searchFilter, setSearchFilter] = useState("");
 	const [selectedBookId, setSelectedBookId] = useState<number | null>(null);
 	const [editingBook, setEditingBook] = useState<Book | null>(null);
 	const [editForm, setEditForm] = useState<Partial<Book>>({});
+	const [notifications, setNotifications] = useState<Notification[]>([]);
 
 	// React Query hooks - 使用自訂 hooks，遵循 tkdodo 建議
 	const {
@@ -35,6 +44,26 @@ const TanstackPage = () => {
 
 	// 預填充函式
 	const prefetchBook = usePrefetchBook();
+
+	// 通知系統輔助函式
+	const showNotification = (type: NotificationType, message: string) => {
+		const id = Date.now().toString();
+		setNotifications((prev) => [...prev, { id, type, message }]);
+
+		// 3 秒後自動移除通知
+		setTimeout(() => {
+			setNotifications((prev) =>
+				prev.filter((notification) => notification.id !== id)
+			);
+		}, 3000);
+	};
+
+	// 移除通知
+	const removeNotification = (id: string) => {
+		setNotifications((prev) =>
+			prev.filter((notification) => notification.id !== id)
+		);
+	};
 
 	// 處理書籍刪除
 	const handleDeleteBook = async (id: number) => {
@@ -86,10 +115,10 @@ const TanstackPage = () => {
 			setEditingBook(null);
 			setEditForm({});
 			// 成功提示
-			alert("書籍更新成功！");
+			showNotification("success", "書籍更新成功！");
 		} catch (error) {
 			console.error("更新書籍失敗：", error);
-			alert("更新失敗，請稍後再試");
+			showNotification("error", "更新失敗，請稍後再試");
 		}
 	};
 
@@ -106,13 +135,48 @@ const TanstackPage = () => {
 		prefetchBook(id);
 	};
 
-	const renderErrorState = () => (
-		<div className="error">
+	const LoadBookError = () => (
+		<div className="text-red-500">
 			載入書籍時發生錯誤：{(booksError as Error).message}
 		</div>
 	);
 
-	const renderMainContent = () => (
+	// 通知 UI 組件
+	const Notifications = () => (
+		<div className="fixed top-4 right-4 z-50 space-y-2">
+			{notifications.map((notification) => (
+				<div
+					key={notification.id}
+					className={`
+						px-4 py-3 rounded-lg shadow-lg max-w-sm
+						transform transition-all duration-300 ease-in-out
+						${
+							notification.type === "success"
+								? "bg-green-500 text-white"
+								: "bg-red-500 text-white"
+						}
+						cursor-pointer hover:opacity-80
+					`}
+					onClick={() => removeNotification(notification.id)}
+				>
+					<div className="flex items-center justify-between">
+						<span className="text-sm font-medium">{notification.message}</span>
+						<button
+							onClick={(e) => {
+								e.stopPropagation();
+								removeNotification(notification.id);
+							}}
+							className="ml-2 text-white hover:text-gray-200"
+						>
+							✕
+						</button>
+					</div>
+				</div>
+			))}
+		</div>
+	);
+
+	const MainContent = () => (
 		<div className="tanstack-page p-5 max-w-6xl mx-auto">
 			<h1 className="text-3xl font-bold">React Query 書籍管理範例</h1>
 			<p className="text-gray-600 mb-5">
@@ -149,7 +213,12 @@ const TanstackPage = () => {
 		</div>
 	);
 
-	return booksError ? renderErrorState() : renderMainContent();
+	return (
+		<>
+			<Notifications />
+			{booksError ? <LoadBookError /> : <MainContent />}
+		</>
+	);
 };
 
 export default TanstackPage;

@@ -1,57 +1,21 @@
 {
   "books": [
     {
-      "id": 1,
-      "title": "JavaScript 權威指南",
-      "author": "David Flanagan",
-      "authorId": 1,
-      "categoryId": 1,
-      "price": 1200,
-      "originalPrice": 1500,
-      "isbn": "9789862017838",
-      "publisher": "歐萊禮",
-      "publishDate": "2023-01-15",
-      "pages": 720,
-      "language": "中文",
-      "description": "深入淺出的 JavaScript 學習指南，適合初學者與進階開發者",
-      "coverImage": "https://picsum.photos/400/600?random=1",
-      "stock": 25,
-      "rating": 4.5,
-      "reviews": 128,
-      "isRecommended": true,
-      "tags": [
-        "程式設計",
-        "前端開發",
-        "JavaScript"
-      ]
-    },
-    {
-      "id": 2,
       "title": "React 18 完整指南",
       "author": "張小明",
-      "authorId": 2,
-      "categoryId": 1,
-      "price": 980,
-      "originalPrice": 980,
-      "isbn": "9789863479123",
       "publisher": "松崗",
       "publishDate": "2023-03-20",
+      "price": 980,
       "pages": 456,
+      "isbn": "9789863479123",
       "language": "中文",
-      "description": "最新 React 18 功能詳解，包含 Hooks、Suspense 等進階技術",
-      "coverImage": "https://picsum.photos/400/600?random=2",
-      "stock": 18,
       "rating": 4.7,
-      "reviews": 89,
-      "isRecommended": true,
-      "tags": [
-        "React",
-        "前端框架",
-        "Web 開發"
-      ]
+      "stock": 19,
+      "description": "最新 React 18 功能詳解，包含 Hooks、Suspense 等進階技術",
+      "id": "2"
     },
     {
-      "id": 3,
+      "id": "3",
       "title": "Python 數據科學手冊",
       "author": "Jake VanderPlas",
       "authorId": 3,
@@ -68,15 +32,10 @@
       "stock": 32,
       "rating": 4.3,
       "reviews": 156,
-      "isRecommended": false,
-      "tags": [
-        "Python",
-        "數據科學",
-        "機器學習"
-      ]
+      "isRecommended": false
     },
     {
-      "id": 4,
+      "id": "4",
       "title": "設計模式：可復用物件導向軟體的基礎",
       "author": "Gang of Four",
       "authorId": 4,
@@ -93,15 +52,10 @@
       "stock": 12,
       "rating": 4.8,
       "reviews": 245,
-      "isRecommended": true,
-      "tags": [
-        "設計模式",
-        "軟體工程",
-        "物件導向"
-      ]
+      "isRecommended": true
     },
     {
-      "id": 5,
+      "id": "5",
       "title": "演算法導論",
       "author": "Thomas H. Cormen",
       "authorId": 5,
@@ -118,15 +72,10 @@
       "stock": 8,
       "rating": 4.6,
       "reviews": 89,
-      "isRecommended": true,
-      "tags": [
-        "演算法",
-        "資料結構",
-        "計算機科學"
-      ]
+      "isRecommended": true
     },
     {
-      "id": 6,
+      "id": "6",
       "title": "Vue.js 實戰開發",
       "author": "李大華",
       "authorId": 6,
@@ -143,12 +92,7 @@
       "stock": 22,
       "rating": 4.2,
       "reviews": 67,
-      "isRecommended": false,
-      "tags": [
-        "Vue.js",
-        "前端框架",
-        "JavaScript"
-      ]
+      "isRecommended": false
     }
   ]
 }

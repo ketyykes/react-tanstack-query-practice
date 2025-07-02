@@ -5,6 +5,8 @@ interface BookDetailsProps {
 }
 
 const BookDetails = ({ book }: BookDetailsProps) => {
+	console.log(book);
+
 	return (
 		<div className="border border-gray-300 rounded p-4">
 			<h3 className="text-lg font-semibold mb-3">{book.title}</h3>
@@ -37,9 +39,6 @@ const BookDetails = ({ book }: BookDetailsProps) => {
 			</p>
 			<p className="mb-2">
 				<strong>描述：</strong> {book.description}
-			</p>
-			<p className="mb-2">
-				<strong>標籤：</strong> {book.tags.join(", ")}
 			</p>
 		</div>
 	);
