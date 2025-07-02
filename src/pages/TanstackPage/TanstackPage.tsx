@@ -8,6 +8,7 @@ import {
 } from "../../query/query";
 import type { Book } from "../../api/types/api.types";
 import { SearchFilter, BookList, BookDetailPanel } from "./components";
+import Notifications from "../../components/Notifications";
 
 // 通知類型
 type NotificationType = "success" | "error";
@@ -141,41 +142,6 @@ const TanstackPage = () => {
 		</div>
 	);
 
-	// 通知 UI 組件
-	const Notifications = () => (
-		<div className="fixed top-4 right-4 z-50 space-y-2">
-			{notifications.map((notification) => (
-				<div
-					key={notification.id}
-					className={`
-						px-4 py-3 rounded-lg shadow-lg max-w-sm
-						transform transition-all duration-300 ease-in-out
-						${
-							notification.type === "success"
-								? "bg-green-500 text-white"
-								: "bg-red-500 text-white"
-						}
-						cursor-pointer hover:opacity-80
-					`}
-					onClick={() => removeNotification(notification.id)}
-				>
-					<div className="flex items-center justify-between">
-						<span className="text-sm font-medium">{notification.message}</span>
-						<button
-							onClick={(e) => {
-								e.stopPropagation();
-								removeNotification(notification.id);
-							}}
-							className="ml-2 text-white hover:text-gray-200"
-						>
-							✕
-						</button>
-					</div>
-				</div>
-			))}
-		</div>
-	);
-
 	const MainContent = () => (
 		<div className="tanstack-page p-5 max-w-6xl mx-auto">
 			<h1 className="text-3xl font-bold">React Query 書籍管理範例</h1>
@@ -215,7 +181,10 @@ const TanstackPage = () => {
 
 	return (
 		<>
-			<Notifications />
+			<Notifications
+				notifications={notifications}
+				removeNotification={removeNotification}
+			/>
 			{booksError ? <LoadBookError /> : <MainContent />}
 		</>
 	);
