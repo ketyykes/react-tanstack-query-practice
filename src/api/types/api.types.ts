@@ -19,3 +19,5 @@ export interface Book {
 	reviews: number;
 	isRecommended: boolean;
 }
+
+export type CreateBook = Omit<Book, "id">;
