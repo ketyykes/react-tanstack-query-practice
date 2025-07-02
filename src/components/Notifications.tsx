@@ -32,7 +32,7 @@ const Notifications = ({
 					key={notification.id}
 					className={`
 						px-4 py-3 rounded-lg shadow-lg max-w-sm
-						transform transition-all duration-300 ease-in-out cursor-pointer hover:opacity-80 ${getNotificationStateClass(
+						transform transition-all duration-300 ease-in-out cursor-pointer hover:opacity-80 text-white ${getNotificationStateClass(
 							notification.type
 						)}
 					`}
