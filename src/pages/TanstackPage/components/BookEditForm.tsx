@@ -71,6 +71,7 @@ const ActionButtons = ({
 }: ActionButtonsProps) => (
 	<div className="mt-4 flex gap-2">
 		<button
+			type="button"
 			onClick={onUpdate}
 			disabled={isUpdatePending}
 			className="py-2 px-4 bg-green-600 text-white border-none rounded cursor-pointer disabled:opacity-50"
@@ -78,6 +79,7 @@ const ActionButtons = ({
 			{isUpdatePending ? "更新中..." : "儲存變更"}
 		</button>
 		<button
+			type="button"
 			onClick={onCancel}
 			disabled={isUpdatePending}
 			className="py-2 px-4 bg-gray-600 text-white border-none rounded cursor-pointer disabled:opacity-50"
