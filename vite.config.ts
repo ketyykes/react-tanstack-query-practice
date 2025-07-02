@@ -7,5 +7,8 @@ export default defineConfig({
 	plugins: [react(), tailwindcss()],
 	server: {
 		port: 9487,
+		watch: {
+			ignored: ["**/db.json"],
+		},
 	},
 });
