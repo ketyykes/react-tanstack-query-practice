@@ -70,6 +70,7 @@ export const useUpdateBookMutation = () => {
 			bookApi.update(id, data),
 		onSuccess: (_, { id }) => {
 			// 使特定書籍和列表查詢失效
+
 			queryClient.invalidateQueries({ queryKey: bookKeys.detail(id) });
 			queryClient.invalidateQueries({ queryKey: bookKeys.lists() });
 		},
