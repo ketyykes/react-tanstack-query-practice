@@ -28,13 +28,11 @@ const BookItem = ({
 		return `${baseClass} ${selectedClass}`;
 	};
 
-	const handleEdit = (e: React.MouseEvent) => {
-		e.stopPropagation();
+	const handleEdit = () => {
 		onEdit(book);
 	};
 
-	const handleDelete = (e: React.MouseEvent) => {
-		e.stopPropagation();
+	const handleDelete = () => {
 		onDelete(book.id);
 	};
 
