@@ -11,12 +11,7 @@ const SearchFilter = ({ onSearch }: SearchFilterProps) => {
 		onSearch(inputValue);
 	};
 
-	const handleClear = () => {
-		setInputValue("");
-		onSearch("");
-	};
-
-	const handleKeyPress = (e: React.KeyboardEvent) => {
+	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter") {
 			handleSearch();
 		}
@@ -29,8 +24,8 @@ const SearchFilter = ({ onSearch }: SearchFilterProps) => {
 				placeholder="搜尋書籍標題..."
 				value={inputValue}
 				onChange={(e) => setInputValue(e.target.value)}
-				onKeyPress={handleKeyPress}
-				className="py-2 px-3 border border-gray-300 rounded min-w-[300px] flex-1"
+				onKeyDown={handleKeyDown}
+				className="py-2 px-3 border border-gray-300 rounded min-w-[300px]"
 			/>
 			<button
 				type="button"
@@ -39,15 +34,6 @@ const SearchFilter = ({ onSearch }: SearchFilterProps) => {
 			>
 				搜尋
 			</button>
-			{inputValue && (
-				<button
-					type="button"
-					onClick={handleClear}
-					className="py-2 px-4 bg-gray-500 text-white border-none rounded cursor-pointer hover:bg-gray-600 transition-colors"
-				>
-					清除
-				</button>
-			)}
 		</div>
 	);
 };
