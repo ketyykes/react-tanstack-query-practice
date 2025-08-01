@@ -11,6 +11,7 @@
     "server": "json-server --watch db.json --port 3004"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.1",
     "@tailwindcss/vite": "^4.1.11",
     "@tanstack/react-query": "^5.81.2",
     "@tanstack/react-query-devtools": "^5.81.2",
@@ -18,8 +19,10 @@
     "node": "^22.17.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-hook-form": "^7.61.1",
     "react-router": "^7.6.2",
-    "tailwindcss": "^4.1.11"
+    "tailwindcss": "^4.1.11",
+    "zod": "^4.0.14"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
