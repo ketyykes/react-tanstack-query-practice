@@ -108,6 +108,11 @@ const TanstackPage = () => {
 		}
 	};
 
+	// 處理搜尋功能
+	const handleSearch = (searchTerm: string) => {
+		setSearchFilter(searchTerm);
+	};
+
 	// 處理滑鼠懸停時的預填充 - 優化使用者體驗
 	const handleBookHover = (id: number) => {
 		prefetchBook(id);
@@ -126,7 +131,7 @@ const TanstackPage = () => {
 				遵循 tkdodo 最佳實踐的 React Query 實作範例
 			</p>
 
-			<SearchFilter value={searchFilter} onChange={setSearchFilter} />
+			<SearchFilter onSearch={handleSearch} />
 
 			<div className="grid grid-cols-2 gap-5">
 				<BookList
