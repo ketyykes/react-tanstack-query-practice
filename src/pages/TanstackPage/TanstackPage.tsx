@@ -7,6 +7,7 @@ import {
 	usePrefetchBook,
 } from "../../query/query";
 import type { Book } from "../../api/types/api.types";
+import type { BookEditFormData } from "../../schemas/bookSchema";
 import { SearchFilter, BookList, BookDetailPanel } from "./components";
 import Notifications from "../../components/Notifications";
 
@@ -23,7 +24,6 @@ const TanstackPage = () => {
 	const [searchFilter, setSearchFilter] = useState("");
 	const [selectedBookId, setSelectedBookId] = useState<number | null>(null);
 	const [editingBook, setEditingBook] = useState<Book | null>(null);
-	const [editForm, setEditForm] = useState<Partial<Book>>({});
 	const [notifications, setNotifications] = useState<Notification[]>([]);
 
 	// React Query hooks - 使用自訂 hooks，遵循 tkdodo 建議
@@ -83,52 +83,29 @@ const TanstackPage = () => {
 	// 開始編輯書籍
 	const handleEditBook = (book: Book) => {
 		setEditingBook(book);
-		setEditForm({
-			title: book.title,
-			author: book.author,
-			publisher: book.publisher,
-			publishDate: book.publishDate,
-			price: book.price,
-			pages: book.pages,
-			isbn: book.isbn,
-			language: book.language,
-			rating: book.rating,
-			stock: book.stock,
-			description: book.description,
-		});
 	};
 
 	// 取消編輯
 	const handleCancelEdit = () => {
 		setEditingBook(null);
-		setEditForm({});
 	};
 
-	// 處理更新書籍
-	const handleUpdateBook = async () => {
+	// 處理更新書籍 - 接收 React Hook Form 的資料
+	const handleUpdateBook = async (formData: BookEditFormData) => {
 		if (!editingBook) return;
 
 		try {
 			await updateBookMutation.mutateAsync({
 				id: editingBook.id,
-				data: editForm,
+				data: formData,
 			});
 			setEditingBook(null);
-			setEditForm({});
 			// 成功提示
 			showNotification("success", "書籍更新成功！");
 		} catch (error) {
 			console.error("更新書籍失敗：", error);
 			showNotification("error", "更新失敗，請稍後再試");
 		}
-	};
-
-	// 處理表單欄位變更
-	const handleFormChange = (field: keyof Book, value: string | number) => {
-		setEditForm((prev) => ({
-			...prev,
-			[field]: value,
-		}));
 	};
 
 	// 處理滑鼠懸停時的預填充 - 優化使用者體驗
@@ -169,9 +146,7 @@ const TanstackPage = () => {
 					selectedBook={selectedBook}
 					isBookLoading={bookLoading}
 					editingBook={editingBook}
-					editForm={editForm}
 					isUpdatePending={updateBookMutation.isPending}
-					onFormChange={handleFormChange}
 					onUpdate={handleUpdateBook}
 					onCancel={handleCancelEdit}
 				/>

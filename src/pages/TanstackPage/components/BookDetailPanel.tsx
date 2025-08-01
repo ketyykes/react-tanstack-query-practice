@@ -1,4 +1,5 @@
 import type { Book } from "../../../api/types/api.types";
+import type { BookEditFormData } from "../../../schemas/bookSchema";
 import BookDetails from "./BookDetails";
 import BookEditForm from "./BookEditForm";
 
@@ -25,10 +26,8 @@ interface BookDetailPanelProps {
 	selectedBook: Book | undefined;
 	isBookLoading: boolean;
 	editingBook: Book | null;
-	editForm: Partial<Book>;
 	isUpdatePending: boolean;
-	onFormChange: (field: keyof Book, value: string | number) => void;
-	onUpdate: () => void;
+	onUpdate: (data: BookEditFormData) => void;
 	onCancel: () => void;
 }
 
@@ -37,9 +36,7 @@ const BookDetailPanel = ({
 	selectedBook,
 	isBookLoading,
 	editingBook,
-	editForm,
 	isUpdatePending,
-	onFormChange,
 	onUpdate,
 	onCancel,
 }: BookDetailPanelProps) => {
@@ -63,10 +60,9 @@ const BookDetailPanel = ({
 
 	const renderEditView = () => (
 		<BookEditForm
-			editForm={editForm}
+			initialData={editingBook!}
 			isUpdatePending={isUpdatePending}
-			onFormChange={onFormChange}
-			onUpdate={onUpdate}
+			onSubmit={onUpdate}
 			onCancel={onCancel}
 		/>
 	);
