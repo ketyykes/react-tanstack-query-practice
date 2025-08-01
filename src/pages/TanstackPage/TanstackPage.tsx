@@ -4,6 +4,7 @@ import {
 	useBookQuery,
 	useDeleteBookMutation,
 	useUpdateBookMutation,
+	useCreateBookMutation,
 	usePrefetchBook,
 } from "../../query/query";
 import type { Book } from "../../api/types/api.types";
@@ -24,6 +25,7 @@ const TanstackPage = () => {
 	const [searchFilter, setSearchFilter] = useState("");
 	const [selectedBookId, setSelectedBookId] = useState<number | null>(null);
 	const [editingBook, setEditingBook] = useState<Book | null>(null);
+	const [isCreating, setIsCreating] = useState(false);
 	const [notifications, setNotifications] = useState<Notification[]>([]);
 
 	// React Query hooks - 使用自訂 hooks，遵循 tkdodo 建議
@@ -42,6 +44,7 @@ const TanstackPage = () => {
 	// Mutation hooks
 	const deleteBookMutation = useDeleteBookMutation();
 	const updateBookMutation = useUpdateBookMutation();
+	const createBookMutation = useCreateBookMutation();
 
 	// 預填充函式
 	const prefetchBook = usePrefetchBook();
@@ -118,6 +121,42 @@ const TanstackPage = () => {
 		prefetchBook(id);
 	};
 
+	// 開始新增書籍
+	const handleCreateBook = () => {
+		setIsCreating(true);
+		setEditingBook(null); // 確保編輯模式關閉
+		setSelectedBookId(null); // 清除選擇的書籍
+	};
+
+	// 處理新增書籍 - 接收 React Hook Form 的資料
+	const handleSubmitCreateBook = async (formData: BookEditFormData) => {
+		try {
+			// 將表單資料轉換為完整的書籍創建資料
+			const createBookData = {
+				...formData,
+				// 新增時需要提供的額外欄位
+				authorId: 1, // 預設作者 ID
+				categoryId: 1, // 預設分類 ID
+				originalPrice: formData.price, // 原價等於價格
+				coverImage: "", // 空的封面圖片
+				reviews: 0, // 預設評論數為 0
+				isRecommended: false, // 預設不推薦
+			};
+			await createBookMutation.mutateAsync(createBookData);
+			setIsCreating(false);
+			// 成功提示
+			showNotification("success", "書籍新增成功！");
+		} catch (error) {
+			console.error("新增書籍失敗：", error);
+			showNotification("error", "新增失敗，請稍後再試");
+		}
+	};
+
+	// 取消新增書籍
+	const handleCancelCreate = () => {
+		setIsCreating(false);
+	};
+
 	const LoadBookError = () => (
 		<div className="text-red-500">
 			載入書籍時發生錯誤：{(booksError as Error).message}
@@ -144,6 +183,7 @@ const TanstackPage = () => {
 					onEditBook={handleEditBook}
 					onDeleteBook={handleDeleteBook}
 					onBookHover={handleBookHover}
+					onCreateBook={handleCreateBook}
 				/>
 
 				<BookDetailPanel
@@ -154,6 +194,10 @@ const TanstackPage = () => {
 					isUpdatePending={updateBookMutation.isPending}
 					onUpdate={handleUpdateBook}
 					onCancel={handleCancelEdit}
+					isCreating={isCreating}
+					isCreatePending={createBookMutation.isPending}
+					onCreate={handleSubmitCreateBook}
+					onCancelCreate={handleCancelCreate}
 				/>
 			</div>
 		</div>

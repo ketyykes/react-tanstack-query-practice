@@ -11,6 +11,7 @@ interface BookListProps {
 	onEditBook: (book: Book) => void;
 	onDeleteBook: (id: number) => void;
 	onBookHover: (id: number) => void;
+	onCreateBook: () => void;
 }
 
 const BookList = ({
@@ -23,6 +24,7 @@ const BookList = ({
 	onEditBook,
 	onDeleteBook,
 	onBookHover,
+	onCreateBook,
 }: BookListProps) => {
 	const renderLoadingState = () => <div>載入中...</div>;
 
@@ -52,7 +54,16 @@ const BookList = ({
 
 	return (
 		<div>
-			<h2 className="text-xl font-semibold mb-3">書籍列表</h2>
+			<div className="flex justify-between items-center mb-3">
+				<h2 className="text-xl font-semibold">書籍列表</h2>
+				<button
+					type="button"
+					onClick={onCreateBook}
+					className="py-2 px-4 bg-blue-600 text-white border-none rounded cursor-pointer hover:bg-blue-700 transition-colors"
+				>
+					新增書籍
+				</button>
+			</div>
 			{isLoading ? (
 				renderLoadingState()
 			) : (

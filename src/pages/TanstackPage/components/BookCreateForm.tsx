@@ -1,11 +1,9 @@
 import { useForm, Controller, type Control } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
-import type { Book } from "../../../api/types/api.types";
-import { 
-	bookEditSchema, 
-	type BookEditFormData, 
-	bookEditDefaultValues 
+import {
+	bookEditSchema,
+	type BookEditFormData,
+	bookEditDefaultValues,
 } from "../../../schemas/bookSchema";
 
 interface FormFieldProps {
@@ -55,7 +53,7 @@ const FormField = ({
 								{...commonProps}
 								type="number"
 								onChange={(e) => {
-									const value = e.target.value === "" ? 0 : Number(e.target.value);
+									const value = Number(e.target.value);
 									field.onChange(value);
 								}}
 							/>
@@ -83,26 +81,26 @@ const FieldGrid = ({ leftField, rightField }: FieldGridProps) => (
 );
 
 interface ActionButtonsProps {
-	isUpdatePending: boolean;
+	isCreatePending: boolean;
 	onCancel: () => void;
 }
 
 const ActionButtons = ({
-	isUpdatePending,
+	isCreatePending,
 	onCancel,
 }: ActionButtonsProps) => (
 	<div className="mt-4 flex gap-2">
 		<button
 			type="submit"
-			disabled={isUpdatePending}
-			className="py-2 px-4 bg-green-600 text-white border-none rounded cursor-pointer disabled:opacity-50"
+			disabled={isCreatePending}
+			className="py-2 px-4 bg-blue-600 text-white border-none rounded cursor-pointer disabled:opacity-50"
 		>
-			{isUpdatePending ? "更新中..." : "儲存變更"}
+			{isCreatePending ? "新增中..." : "新增書籍"}
 		</button>
 		<button
 			type="button"
 			onClick={onCancel}
-			disabled={isUpdatePending}
+			disabled={isCreatePending}
 			className="py-2 px-4 bg-gray-600 text-white border-none rounded cursor-pointer disabled:opacity-50"
 		>
 			取消
@@ -110,48 +108,32 @@ const ActionButtons = ({
 	</div>
 );
 
-interface BookEditFormProps {
-	initialData: Partial<Book>;
-	isUpdatePending: boolean;
+interface BookCreateFormProps {
+	isCreatePending: boolean;
 	onSubmit: (data: BookEditFormData) => void;
 	onCancel: () => void;
 }
 
-const BookEditForm = ({
-	initialData,
-	isUpdatePending,
+const BookCreateForm = ({
+	isCreatePending,
 	onSubmit,
 	onCancel,
-}: BookEditFormProps) => {
+}: BookCreateFormProps) => {
 	const {
 		control,
 		handleSubmit,
-		reset,
 		formState: { errors },
 	} = useForm<BookEditFormData>({
 		resolver: zodResolver(bookEditSchema),
-		defaultValues: bookEditDefaultValues,
+		defaultValues: {
+			...bookEditDefaultValues,
+			// 為新增模式設定更合理的預設值
+			publishDate: new Date().toISOString().split("T")[0], // 今天的日期
+			rating: 0,
+			stock: 1, // 預設庫存為 1
+		},
 		mode: "onSubmit", // 提交時驗證
 	});
-
-	// 當 initialData 變更時重置表單
-	useEffect(() => {
-		if (initialData) {
-			reset({
-				title: initialData.title || "",
-				author: initialData.author || "",
-				publisher: initialData.publisher || "",
-				publishDate: initialData.publishDate || "",
-				price: initialData.price || 0,
-				pages: initialData.pages || 0,
-				isbn: initialData.isbn || "",
-				language: initialData.language || "",
-				stock: initialData.stock || 0,
-				rating: initialData.rating || 0,
-				description: initialData.description || "",
-			});
-		}
-	}, [initialData, reset]);
 
 	const handleFormSubmit = (data: BookEditFormData) => {
 		onSubmit(data);
@@ -159,7 +141,7 @@ const BookEditForm = ({
 
 	return (
 		<div>
-			<h2 className="text-xl font-semibold mb-3">編輯書籍</h2>
+			<h2 className="text-xl font-semibold mb-3">新增書籍</h2>
 			<div className="border border-gray-300 rounded p-4">
 				<form onSubmit={handleSubmit(handleFormSubmit)}>
 					<div className="space-y-3">
@@ -255,7 +237,7 @@ const BookEditForm = ({
 						/>
 					</div>
 					<ActionButtons
-						isUpdatePending={isUpdatePending}
+						isCreatePending={isCreatePending}
 						onCancel={onCancel}
 					/>
 				</form>
@@ -264,4 +246,4 @@ const BookEditForm = ({
 	);
 };
 
-export default BookEditForm;
+export default BookCreateForm;

@@ -2,6 +2,7 @@ import type { Book } from "../../../api/types/api.types";
 import type { BookEditFormData } from "../../../schemas/bookSchema";
 import BookDetails from "./BookDetails";
 import BookEditForm from "./BookEditForm";
+import BookCreateForm from "./BookCreateForm";
 
 interface BookDetailsRendererProps {
 	selectedBook: Book | undefined;
@@ -29,6 +30,10 @@ interface BookDetailPanelProps {
 	isUpdatePending: boolean;
 	onUpdate: (data: BookEditFormData) => void;
 	onCancel: () => void;
+	isCreating: boolean;
+	isCreatePending: boolean;
+	onCreate: (data: BookEditFormData) => void;
+	onCancelCreate: () => void;
 }
 
 const BookDetailPanel = ({
@@ -39,6 +44,10 @@ const BookDetailPanel = ({
 	isUpdatePending,
 	onUpdate,
 	onCancel,
+	isCreating,
+	isCreatePending,
+	onCreate,
+	onCancelCreate,
 }: BookDetailPanelProps) => {
 	const renderEmptyState = () => (
 		<div className="p-5 text-center text-gray-600">請選擇一本書查看詳情</div>
@@ -67,7 +76,22 @@ const BookDetailPanel = ({
 		/>
 	);
 
-	return <div>{editingBook ? renderEditView() : renderDetailView()}</div>;
+	const renderCreateView = () => (
+		<BookCreateForm
+			isCreatePending={isCreatePending}
+			onSubmit={onCreate}
+			onCancel={onCancelCreate}
+		/>
+	);
+
+	// 優先級：新增模式 > 編輯模式 > 詳情模式
+	const renderCurrentView = () => {
+		if (isCreating) return renderCreateView();
+		if (editingBook) return renderEditView();
+		return renderDetailView();
+	};
+
+	return <div>{renderCurrentView()}</div>;
 };
 
 export default BookDetailPanel;

@@ -3,4 +3,5 @@ export { default as BookItem } from "./BookItem";
 export { default as BookList } from "./BookList";
 export { default as BookDetails } from "./BookDetails";
 export { default as BookEditForm } from "./BookEditForm";
+export { default as BookCreateForm } from "./BookCreateForm";
 export { default as BookDetailPanel } from "./BookDetailPanel";
