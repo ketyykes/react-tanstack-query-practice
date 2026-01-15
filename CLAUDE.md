@@ -8,6 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 開發指令
 
+
 ### 核心指令
 ```bash
 # 安裝依賴
@@ -84,6 +85,16 @@ src/
 - `bookEditSchema` 定義完整的書籍編輯驗證規則
 - 使用 `@hookform/resolvers/zod` 進行表單驗證
 - 型別安全的表單資料處理
+- 使用 `z.infer<typeof schema>` 自動推導表單型別
+
+### 元件內部結構模式
+每個元件應遵循以下順序：
+1. 匯入區域（React hooks → Query hooks → Types → Components）
+2. 型別定義（Props 介面）
+3. Hooks（狀態 → 查詢 → 副作用）
+4. 事件處理函式
+5. 早期回傳（載入中、錯誤狀態）
+6. 主要 JSX 回傳
 
 ### API 設計模式
 - 路由工廠函式產生 URL (`bookQueryRouteCreator`, `bookDetailRouteCreator` 等)
@@ -109,3 +120,42 @@ src/
 - 使用 React Query DevTools 監控查詢狀態和快取
 - 瀏覽器開發者工具查看網路請求
 - 檢查 `db.json` 檔案確認資料變更
+
+## Git Commit 訊息格式
+
+```
+type(scope): description
+
+types:
+- feat: 新功能
+- fix: 問題修復
+- refactor: 程式碼重構
+- docs: 文件更新
+- style: 樣式調整
+
+範例:
+feat(books): 新增書籍搜尋功能
+fix(api): 修復書籍更新 API 錯誤處理
+refactor(query): 重構 TanStack Query hooks 結構
+```
+
+## 新增功能檢查清單
+
+### API 開發
+1. 在 `src/api/types/api.types.ts` 定義型別
+2. 在 `src/api/api.ts` 新增路由工廠函式和 API 函式
+3. 確保回傳型別正確標註
+
+### Query/Mutation Hook 開發
+1. 在 `bookKeys` 中新增對應的 key 工廠函式
+2. 實作對應的 useQuery 或 useMutation hooks
+3. 設定合理的 `staleTime`
+4. 實作適當的快取更新策略（`invalidateQueries`/`removeQueries`）
+5. 新增錯誤處理邏輯
+
+### 元件開發
+1. 決定元件放置位置（頁面專用 `pages/*/components/` 或共用 `components/`）
+2. 定義 TypeScript Props 介面
+3. 遵循標準元件結構模式
+4. 實作載入中和錯誤狀態處理
+5. 在 `index.ts` 中統一匯出（頁面專用元件）
