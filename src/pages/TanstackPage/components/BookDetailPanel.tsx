@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { Book } from "../../../api/types/api.types";
 import type { BookEditFormData } from "../../../schemas/bookSchema";
 import BookDetails from "./BookDetails";
@@ -13,13 +14,16 @@ const BookDetailsRenderer = ({
 	selectedBook,
 	isBookLoading,
 }: BookDetailsRendererProps) => {
-	const Loading = () => <div>載入詳情中...</div>;
+	// 直接回傳 JSX，不在 render 內定義元件，避免每次 render 產生新元件型別而整棵重新掛載
+	if (isBookLoading) {
+		return <div>載入詳情中...</div>;
+	}
 
-	const BookNotFound = () => (
+	return selectedBook ? (
+		<BookDetails book={selectedBook} />
+	) : (
 		<div className="p-5 text-center text-gray-600">找不到該書籍</div>
 	);
-	if (isBookLoading) return <Loading />;
-	return selectedBook ? <BookDetails book={selectedBook} /> : <BookNotFound />;
 };
 
 interface BookDetailPanelProps {
@@ -94,4 +98,4 @@ const BookDetailPanel = ({
 	return <div>{renderCurrentView()}</div>;
 };
 
-export default BookDetailPanel;
+export default memo(BookDetailPanel);

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { Book } from "../../../api/types/api.types";
 
 interface BookItemProps {
@@ -23,7 +24,7 @@ const BookItem = ({
 }: BookItemProps) => {
 	const getItemClassName = () => {
 		const baseClass =
-			"p-3 border-1 border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:shadow-xl hover:shadow-blue-200/50 hover:border-blue-400 hover:border-2 hover:scale-105 hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 hover:-translate-y-1 rounded-lg";
+			"p-3 border-2 border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:shadow-xl hover:shadow-blue-200/50 hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 hover:-translate-y-1 rounded-lg";
 		const selectedClass = isSelected ? "bg-blue-200" : "bg-transparent";
 		return `${baseClass} ${selectedClass}`;
 	};
@@ -69,4 +70,5 @@ const BookItem = ({
 	);
 };
 
-export default BookItem;
+// 以 memo 包裝：列表項目僅在自身 props（如 isSelected）變動時才重新渲染
+export default memo(BookItem);

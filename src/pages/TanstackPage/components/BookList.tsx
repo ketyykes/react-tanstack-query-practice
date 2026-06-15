@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { Book } from "../../../api/types/api.types";
 import BookItem from "./BookItem";
 
@@ -5,8 +6,8 @@ interface BookListProps {
 	books: Book[];
 	isLoading: boolean;
 	selectedBookId: number | null;
-	isDeletePending: boolean;
-	isUpdatePending: boolean;
+	deletingBookId: number | null;
+	updatingBookId: number | null;
 	onSelectBook: (id: number) => void;
 	onEditBook: (book: Book) => void;
 	onDeleteBook: (id: number) => void;
@@ -18,8 +19,8 @@ const BookList = ({
 	books,
 	isLoading,
 	selectedBookId,
-	isDeletePending,
-	isUpdatePending,
+	deletingBookId,
+	updatingBookId,
 	onSelectBook,
 	onEditBook,
 	onDeleteBook,
@@ -38,8 +39,8 @@ const BookList = ({
 				key={book.id}
 				book={book}
 				isSelected={selectedBookId === book.id}
-				isDeletePending={isDeletePending}
-				isUpdatePending={isUpdatePending}
+				isDeletePending={deletingBookId === book.id}
+				isUpdatePending={updatingBookId === book.id}
 				onSelect={onSelectBook}
 				onEdit={onEditBook}
 				onDelete={onDeleteBook}
@@ -73,4 +74,4 @@ const BookList = ({
 	);
 };
 
-export default BookList;
+export default memo(BookList);

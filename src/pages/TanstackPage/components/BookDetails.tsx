@@ -5,8 +5,6 @@ interface BookDetailsProps {
 }
 
 const BookDetails = ({ book }: BookDetailsProps) => {
-	console.log(book);
-
 	return (
 		<div className="border border-gray-300 rounded p-4">
 			<h3 className="text-lg font-semibold mb-3">{book.title}</h3>

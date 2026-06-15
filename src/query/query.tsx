@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { bookApi } from "../api/api";
 import type { Book } from "../api/types/api.types";
 
@@ -101,11 +102,15 @@ export const useDeleteBookMutation = () => {
 export const usePrefetchBook = () => {
 	const queryClient = useQueryClient();
 
-	return (id: number) => {
-		queryClient.prefetchQuery({
-			queryKey: bookKeys.detail(id),
-			queryFn: () => bookApi.getById(id),
-			staleTime: 5 * 60 * 1000,
-		});
-	};
+	// 以 useCallback 穩定回傳的函式參照，避免每次 render 都產生新函式而破壞下游 memo
+	return useCallback(
+		(id: number) => {
+			queryClient.prefetchQuery({
+				queryKey: bookKeys.detail(id),
+				queryFn: () => bookApi.getById(id),
+				staleTime: 5 * 60 * 1000,
+			});
+		},
+		[queryClient]
+	);
 };

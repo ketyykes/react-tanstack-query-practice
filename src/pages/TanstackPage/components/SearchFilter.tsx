@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 
 interface SearchFilterProps {
 	onSearch: (searchTerm: string) => void;
@@ -31,4 +31,4 @@ const SearchFilter = ({ onSearch }: SearchFilterProps) => {
 	);
 };
 
-export default SearchFilter;
+export default memo(SearchFilter);
